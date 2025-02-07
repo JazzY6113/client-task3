@@ -3,7 +3,7 @@
 <head>
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <script defer src="js/vue.js"></script>
+   <script defer src="https://cdn.jsdelivr.net/npm/vue@2"></script>
    <script defer src="js/main.js"></script>
    <link rel="stylesheet" href="css/main.css">
    <title>Kanban</title>
@@ -11,12 +11,12 @@
 <body>
     <div id="app">
         <h1>Доска задач</h1>
+        <create-card @card-created="addCard"></create-card>
         <div>
-            <input v-model="newCardTitle" placeholder="Название задачи">
-            <input v-model="newCardDescription" placeholder="Описание задачи">
-            <input type="datetime-local" v-model="newCardDeadline">
-            <button @click="createCard">Добавить карточку</button>
-        </div>
+            <h3>Удалить все карточки</h3>
+            <button @click="clearCards">Очистить все карточки</button>
+        </div><br>
+        <edit-card v-if="editingCard" :card="editingCard" @save="saveEditedCard" @cancel="cancelEdit"></edit-card><br>
         <div class="columns">
             <div class="column" v-for="column in [1, 2, 3, 4]" :key="column">
                 <h2>{{ column === 1 ? 'Новые' : column === 2 ? 'В работе' : column === 3 ? 'На тестировании' : 'Выполнено' }}</h2>
@@ -31,14 +31,6 @@
                     @move-card-back="moveCardBack"
                 ></note-card>
             </div>
-        </div>
-        <div v-if="editingCard">
-            <h3>Редактировать карточку</h3>
-            <input v-model="editingCard.title">
-            <input v-model="editingCard.description">
-            <input type="datetime-local" v-model="editingCard.deadline">
-            <button @click="saveEditedCard">Сохранить</button>
-            <button @click="cancelEdit">Отмена</button>
         </div>
     </div>    
 </body>
