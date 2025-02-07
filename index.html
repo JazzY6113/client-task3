@@ -6,54 +6,34 @@
    <script defer src="js/vue.js"></script>
    <script defer src="js/main.js"></script>
    <link rel="stylesheet" href="css/main.css">
-   <title>Note App</title>
+   <title>Kanban</title>
 </head>
 <body>
     <div id="app">
-        <button @click="deleteAllCards">Удалить все карточки</button><br><br>
         <div class="new-card-form">
-            <h2>Создать новую карточку</h2><br>
-            <input v-model="newCardTitle" placeholder="Заголовок карточки" :disabled="isFirstColumnBlocked" />
-            <div v-for="(item, index) in newCardItems" :key="index" class="new-card-item">
-                <input v-model="newCardItems[index]" placeholder="Пункт списка" :disabled="isFirstColumnBlocked" />
-                <button @click="removeNewCardItem(index)" :disabled="isFirstColumnBlocked">Удалить</button>
-            </div>
-            <button @click="addNewCardItem" :disabled="isFirstColumnBlocked">Добавить пункт</button>
-            <button @click="createCard" :disabled="!isNewCardValid || isFirstColumnBlocked">Создать карточку</button>
+            <h2>Создать новую карточку</h2>
+            <input v-model="newCardTitle" placeholder="Заголовок карточки" />
+            <textarea v-model="newCardDescription" placeholder="Описание задачи"></textarea>
+            <input type="date" v-model="newCardDeadline" />
+            <button @click="createCard">Создать карточку</button>
         </div>
-        
+
         <div v-if="editingCard" class="modal">
             <div class="modal-content">
-                <h2>Редактирование карточки</h2><br>
+                <h2>Редактирование карточки</h2>
                 <input v-model="editingCard.title" placeholder="Заголовок" />
-                <div v-for="(item, index) in editingCard.items" :key="index" class="edit-card-item">
-                    <input v-model="item.text" placeholder="Пункт списка" />
-                    <button @click="removeEditCardItem(index)" :disabled="editingCard.items.length <= 3">Удалить</button>
-                </div>
-                <button @click="addEditCardItem" :disabled="editingCard.items.length >= 5">Добавить пункт</button>
+                <textarea v-model="editingCard.description" placeholder="Описание задачи"></textarea>
+                <input type="date" v-model="editingCard.deadline" />
                 <button @click="saveEditedCard">Сохранить</button>
                 <button @click="cancelEdit">Отмена</button>
-                <p v-if="editingCard.items.length <= 3" style="color: red;">Минимальное количество пунктов - 3.</p>
             </div>
         </div>
 
         <div class="columns">
-            <div class="column" :class="{ 'blocked': isFirstColumnBlocked }">
-                <h2>Столбец 1</h2>
-                <p>(максимум 3 карточки)</p>
-                <note-card v-for="card in firstColumnCards" :key="card.id" :card="card" :column="1"
-                           @update-card="updateCard" @edit-card="editCard"></note-card>
-            </div>
             <div class="column">
-                <h2>Столбец 2</h2>
-                <p>(максимум 5 карточек)</p>
-                <note-card v-for="card in secondColumnCards" :key="card.id" :card="card" :column="2"
-                           @update-card="updateCard" @edit-card="editCard"></note-card>
-            </div>
-            <div class="column">
-                <h2>Столбец 3</h2>
-                <p>(без ограничений)</p>
-                <note-card v-for="card in thirdColumnCards" :key="card.id" :card="card" :column="3"></note-card>
+                <h2>Запланированные задачи</h2>
+                <note-card v-for="card in cards.filter(c => c.column === 1)" :key="card.id" :card="card" :column="1"
+                           @edit-card="editCard" @delete-card="deleteCard" @move-card="moveCard"></note-card>
             </div>
         </div>
     </div>

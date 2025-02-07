@@ -9,63 +9,70 @@ body {
     background-color: #f4f4f4;
     padding: 20px;
 }
+
 .columns {
     display: flex;
     justify-content: space-between;
 }
+
 .column {
     display: flex;
     flex-direction: column;
-    width: 30vw;
+    width: 23%;
     background-color: #fff;
     padding: 10px;
     margin: 10px;
     border-radius: 15px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
-.column.blocked {
-    opacity: 0.5;
-    pointer-events: none;
-}
+
 .card {
     background-color: aliceblue;
     margin-bottom: 10px;
     border-radius: 15px;
-    padding: 5px 0 0 5px;
-}
-
-li {
-    list-style-type: none;
+    padding: 10px;
 }
 
 h2 {
     background-color: paleturquoise;
     border-radius: 15px;
     text-align: center;
+    padding: 10px;
 }
 
 .new-card-form {
-    padding: 0 0 1vh 0;
-
+    margin-bottom: 20px;
 }
 
 button {
     border-radius: 15px;
     padding: 10px 20px;
+    margin: 5px;
 }
 
-.new-card-form  input, .modal-content input {
-    padding: 10px 0;
-    width: 50vw;
-    height: 5vh;
+input, textarea {
+    padding: 10px;
+    width: 100%;
+    margin-bottom: 10px;
     border-radius: 15px;
+    border: 1px solid #ccc;
 }
 
-.new-card-form  input, .modal-content input ::placeholder {
-    padding: 0 0 0 10px;
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.column p {
-    text-align: center;
-    padding: 10px 0;
+.modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 15px;
+    width: 50%;
 }
