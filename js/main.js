@@ -154,4 +154,35 @@ let app = new Vue({
                 this.editingCard.items.push({ text: '', completed: false });
             }
         },
+        removeEditCardItem(index) {
+            if (this.editingCard.items.length > 3) {
+                this.editingCard.items.splice(index, 1);
+            } else {
+                alert('Нельзя удалить пункт, так как должно быть не менее трех пунктов.');
+            }
+        },
+        deleteAllCards() {
+            this.cards = [];
+            this.nextCardId = 1;
+            this.saveData();
+        },
+        saveData() {
+            localStorage.setItem('cards', JSON.stringify(this.cards));
+            localStorage.setItem('nextCardId', this.nextCardId);
+        },
+        loadData() {
+            const savedCards = localStorage.getItem('cards');
+            const savedNextCardId = localStorage.getItem('nextCardId');
+            if (savedCards) {
+                this.cards = JSON.parse(savedCards);
+            }
+            if (savedNextCardId) {
+                this.nextCardId = parseInt(savedNextCardId, 10);
+            }
+            this.checkSecondColumn();
+        }
+    },
+    mounted() {
+        this.loadData();
+    }
 });
