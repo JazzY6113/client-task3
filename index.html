@@ -40,6 +40,11 @@
                 <note-card v-for="card in cards.filter(c => c.column === 2)" :key="card.id" :card="card" :column="2"
                            @edit-card="editCard" @delete-card="deleteCard" @move-card="moveCard"></note-card>
             </div>
+            <div class="column">
+                <h2>Тестирование</h2>
+                <note-card v-for="card in cards.filter(c => c.column === 3)" :key="card.id" :card="card" :column="3"
+                           @edit-card="editCard" @delete-card="deleteCard" @move-card="moveCard"></note-card>
+            </div>
         </div>
     </div>
 </body>
