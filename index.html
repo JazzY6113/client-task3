@@ -10,47 +10,36 @@
 </head>
 <body>
     <div id="app">
-        <div class="new-card-form">
-            <h2>Создать новую карточку</h2>
-            <input v-model="newCardTitle" placeholder="Заголовок карточки" />
-            <textarea v-model="newCardDescription" placeholder="Описание задачи"></textarea>
-            <input type="date" v-model="newCardDeadline" />
-            <button @click="createCard">Создать карточку</button>
+        <h1>Доска задач</h1>
+        <div>
+            <input v-model="newCardTitle" placeholder="Название задачи">
+            <input v-model="newCardDescription" placeholder="Описание задачи">
+            <input type="datetime-local" v-model="newCardDeadline">
+            <button @click="createCard">Добавить карточку</button>
         </div>
-
-        <div v-if="editingCard" class="modal">
-            <div class="modal-content">
-                <h2>Редактирование карточки</h2>
-                <input v-model="editingCard.title" placeholder="Заголовок" />
-                <textarea v-model="editingCard.description" placeholder="Описание задачи"></textarea>
-                <input type="date" v-model="editingCard.deadline" />
-                <button @click="saveEditedCard">Сохранить</button>
-                <button @click="cancelEdit">Отмена</button>
-            </div>
-        </div>
-
         <div class="columns">
-            <div class="column">
-                <h2>Запланированные задачи</h2>
-                <note-card v-for="card in cards.filter(c => c.column === 1)" :key="card.id" :card="card" :column="1"
-                           @edit-card="editCard" @delete-card="deleteCard" @move-card="moveCard"></note-card>
-            </div>
-            <div class="column">
-                <h2>Задачи в работе</h2>
-                <note-card v-for="card in cards.filter(c => c.column === 2)" :key="card.id" :card="card" :column="2"
-                           @edit-card="editCard" @delete-card="deleteCard" @move-card="moveCard"></note-card>
-            </div>
-            <div class="column">
-                <h2>Тестирование</h2>
-                <note-card v-for="card in cards.filter(c => c.column === 3)" :key="card.id" :card="card" :column="3"
-                           @edit-card="editCard" @delete-card="deleteCard" @move-card="moveCard"></note-card>
-            </div>
-            <div class="column">
-                <h2>Выполненные задачи</h2>
-                <note-card v-for="card in cards.filter(c => c.column === 4)" :key="card.id" :card="card" :column="4"
-                           @edit-card="editCard" @delete-card="deleteCard" @move-card="moveCard"></note-card>
+            <div class="column" v-for="column in [1, 2, 3, 4]" :key="column">
+                <h2>{{ column === 1 ? 'Новые' : column === 2 ? 'В работе' : column === 3 ? 'На тестировании' : 'Выполнено' }}</h2>
+                <note-card
+                    v-for="card in cards.filter(c => c.column === column)"
+                    :key="card.id"
+                    :card="card"
+                    :column="column"
+                    @edit-card="editCard"
+                    @delete-card="deleteCard"
+                    @move-card="moveCard"
+                    @move-card-back="moveCardBack"
+                ></note-card>
             </div>
         </div>
-    </div>
+        <div v-if="editingCard">
+            <h3>Редактировать карточку</h3>
+            <input v-model="editingCard.title">
+            <input v-model="editingCard.description">
+            <input type="datetime-local" v-model="editingCard.deadline">
+            <button @click="saveEditedCard">Сохранить</button>
+            <button @click="cancelEdit">Отмена</button>
+        </div>
+    </div>    
 </body>
 </html>

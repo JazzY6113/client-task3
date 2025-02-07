@@ -71,7 +71,7 @@ let app = new Vue({
                 createdDate: new Date().toLocaleString(),
                 deadline: deadline,
                 column: 1,
-                editDates: []
+                editDates: [] // Массив для хранения дат редактирования
             };
             this.cards.push(newCard);
             this.saveData();
@@ -116,9 +116,11 @@ let app = new Vue({
             this.saveData();
         },
         moveCardBack(card, column, reason) {
-            card.column = column;
-            card.status = `Возвращено в работу. Причина: ${reason}`;
-            this.saveData();
+            if (column === 2) { // Возвращаем в работу
+                card.column = column;
+                card.status = `Возвращено в работу. Причина: ${reason}`;
+                this.saveData();
+            }
         },
         saveData() {
             localStorage.setItem('cards', JSON.stringify(this.cards));
