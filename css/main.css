@@ -1,12 +1,18 @@
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+* {
     margin: 0;
-    padding: 20px;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+h1 {
+    text-align: center;
 }
 
 h2 {
     color: #333;
+    border: solid black;
+    border-radius: 5px;
+    text-align: center;
 }
 
 .new-card-form, .modal {
@@ -18,28 +24,41 @@ h2 {
 }
 
 .card {
-    background: #fff;
+    background: #6186AA;
     padding: 10px;
     margin: 10px 0;
     border: 1px solid #ccc;
     border-radius: 5px;
+    color: white;
 }
 
 .columns {
     display: flex;
     justify-content: space-between;
+    gap: 5px;
 }
 
 .column {
     width: 24%;
-    background: #e9e9e9;
     padding: 10px;
     border-radius: 5px;
+    border: solid black;
+    display: flex;
+    flex-direction: column;
 }
 
 button {
-    margin-top: 10px;
+    margin: 10px 0 0 0;
+    padding: 5px;
     cursor: pointer;
+    border-radius: 5px;
+    border-color: #ccc;
+    background-color: white;
+}
+
+input {
+    padding: 1vw 1vh;
+    border-radius: 5px;
 }
 
 .modal {

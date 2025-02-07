@@ -18,23 +18,21 @@ Vue.component('note-card', {
             <p>Дата создания: {{ card.createdDate }}</p>
             <p>Дэдлайн: {{ formatDeadline(card.deadline) }}</p>
             <p v-if="card.editDates.length">Даты редактирования: {{ card.editDates.join(', ') }}</p>
-            <p v-if="card.status">{{ card.status }}</p>
-            
+            <p v-if="card.status">{{ card.status }}</p><br>
             <div>
-                <button v-if="column === 1 || column === 2 || column === 3" @click="editCard">Редактировать</button>
+                <button v-if="column === 1 || column === 2 || column === 3" @click="editCard">Редактировать</button><br>
                 <button v-if="column === 1" @click="deleteCard">Удалить</button>
             </div>
-
             <div v-if="column === 1">
-                <button @click="moveToInProgress">В работу</button>
+                <button @click="moveToInProgress">В работу</button><br>
             </div>
             <div v-if="column === 2">
-                <button @click="moveToTesting">На тестирование</button>
+                <button @click="moveToTesting">На тестирование</button><br>
             </div>
             <div v-if="column === 3">
-                <button @click="moveToCompleted">Выполнено</button>
+                <button @click="moveToCompleted">Выполнено</button><br>
                 <button @click="moveBackToInProgress">Вернуть в работу</button>
-            </div>
+            </div><br>
         </div>
     `,
     methods: {
@@ -70,7 +68,7 @@ Vue.component('create-card', {
     template: `
         <div>
             <h3>Добавить карточку</h3>
-                        <input v-model="title" placeholder="Название задачи" />
+            <input v-model="title" placeholder="Название задачи" />
             <input v-model="description" placeholder="Описание задачи" />
             <input type="datetime-local" v-model="deadline" />
             <button @click="createCard">Добавить карточку</button>
@@ -142,7 +140,7 @@ let app = new Vue({
                 createdDate: new Date().toLocaleString(),
                 deadline: cardData.deadline,
                 column: 1,
-                editDates: [] // Массив для хранения дат редактирования
+                editDates: []
             };
             this.cards.push(newCard);
             this.saveData();
@@ -158,7 +156,7 @@ let app = new Vue({
         saveEditedCard(card) {
             const index = this.cards.findIndex(c => c.id === card.id);
             if (index !== -1) {
-                card.editDates.push(new Date().toLocaleString()); // Добавляем дату редактирования
+                card.editDates.push(new Date().toLocaleString());
                 this.cards.splice(index, 1, card);
             }
             this.editingCard = null;
@@ -181,7 +179,7 @@ let app = new Vue({
             this.saveData();
         },
         moveCardBack(card, column, reason) {
-            if (column === 2) { // Возвращаем в работу
+            if (column === 2) {
                 card.column = column;
                 card.status = `Возвращено в работу. Причина: ${reason}`;
                 this.saveData();
