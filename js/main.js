@@ -18,11 +18,13 @@ Vue.component('note-card', {
             <p>Дата создания: {{ card.createdDate }}</p>
             <p>Дэдлайн: {{ card.deadline }}</p>
             <p v-if="card.editDates.length">Даты редактирования: {{ card.editDates.join(', ') }}</p>
+            <p v-if="card.status">{{ card.status }}</p>
             <button @click="editCard">Редактировать</button>
             <button @click="deleteCard">Удалить</button>
             <button v-if="column === 1" @click="moveToInProgress">В работу</button>
             <button v-if="column === 3" @click="moveToCompleted">Выполнено</button>
             <button v-if="column === 2" @click="moveToTesting">На тестирование</button>
+            <button v-if="column === 3" @click="moveBackToInProgress">Вернуть в работу</button>
         </div>
     `,
     methods: {
@@ -40,6 +42,12 @@ Vue.component('note-card', {
         },
         moveToCompleted() {
             this.$emit('move-card', this.card, 4);
+        },
+        moveBackToInProgress() {
+            const reason = prompt("Введите причину возврата:");
+            if (reason) {
+                this.$emit('move-card-back', this.card, 2, reason);
+            }
         }
     }
 });
@@ -63,8 +71,7 @@ let app = new Vue({
                 createdDate: new Date().toLocaleString(),
                 deadline: deadline,
                 column: 1,
-                lastEdited: null,
-                editDates: [] // Массив для хранения дат редактирования
+                editDates: []
             };
             this.cards.push(newCard);
             this.saveData();
@@ -104,8 +111,13 @@ let app = new Vue({
             if (column === 4) {
                 const now = new Date();
                 const deadline = new Date(card.deadline);
-                card.completedDate = deadline < now ? 'Просрочено' : 'Выполнено в срок';
+                card.status = deadline < now ? 'Просрочено' : 'Выполнено в срок';
             }
+            this.saveData();
+        },
+        moveCardBack(card, column, reason) {
+            card.column = column;
+            card.status = `Возвращено в работу. Причина: ${reason}`;
             this.saveData();
         },
         saveData() {
