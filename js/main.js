@@ -90,20 +90,6 @@ let app = new Vue({
             card.column = column;
             this.saveData();
         },
-        saveData() {
-            localStorage.setItem('cards', JSON.stringify(this.cards));
-            localStorage.setItem('nextCardId', this.nextCardId);
-        },
-        loadData() {
-            const savedCards = localStorage.getItem('cards');
-            const savedNextCardId = localStorage.getItem('nextCardId');
-            if (savedCards) {
-                this.cards = JSON.parse(savedCards);
-            }
-            if (savedNextCardId) {
-                this.nextCardId = parseInt(savedNextCardId, 10);
-            }
-        }
     },
     mounted() {
         this.loadData();
