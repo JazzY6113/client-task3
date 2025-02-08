@@ -24,13 +24,14 @@
                     v-for="card in getCardsByColumn(column.id)" 
                     :key="card.id" 
                     :card="card" 
+                    :all-cards="cards"
                     @edit="editCard" 
                     @delete="deleteCard" 
                     @move="moveCard"
                     @move-back="moveBackToInProgress">
                 </note-card>
             </div>
-        </div>
+        </div>        
     </div>
 </body>
 </html>

@@ -3,7 +3,7 @@ let eventBus = new Vue();
 Vue.component('note-card', {
     props: {
         card: Object,
-        allCards: Array
+        allCards: Array  // Пропс allCards
     },
     template: `
         <div class="card">
@@ -50,7 +50,11 @@ Vue.component('note-card', {
             return this.card.column === 3;
         },
         isMoveDisabled() {
-            const higherPriorityExists = this.allCards && this.allCards.some(c => c.priority < this.card.priority && c.column < 4);
+            // Проверка для блокировки перемещения карточки, если есть более высокие приоритеты, не перемещенные в "Выполнено"
+            const higherPriorityExists = this.allCards && this.allCards.some(c => 
+                c.priority < this.card.priority && c.column < 4
+            );
+
             return higherPriorityExists;
         }
     },
