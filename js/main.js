@@ -2,39 +2,32 @@ let eventBus = new Vue();
 
 Vue.component('note-card', {
     props: {
-        card: {
-            type: Object,
-            required: true
-        },
-        highPriorityCardsCompleted: {
-            type: Boolean,
-            required: true
-        }
+        card: Object,
+        allCards: Array
     },
     template: `
         <div class="card">
             <h3>Заголовок: {{ card.title }}</h3>
             <p>Описание: {{ card.description }}</p>
-            <p v-if="card.priority">Приоритет: {{ getPriorityText(card.priority) }}</p>
+            <p>Приоритет: {{ getPriorityText(card.priority) }}</p>
             <p>Дата создания: {{ card.createdDate }}</p>
             <p>Дэдлайн: {{ formatDeadline(card.deadline) }}</p>
-            <p v-if="card.editDates.length">Даты редактирования: {{ card.editDates.join(', ') }}</p>
-            <p v-if="card.status">{{ card.status }}</p>
-            <p v-if="card.reason">Причина возврата: {{ card.reason }}</p><br>
+            <p v-if="card.status">Статус: {{ card.status }}</p>
+            <p v-if="card.reason">Причина возврата: {{ card.reason }}</p>
+            <p v-if="card.editDates.length">Редактировалось:</p>
+            <ul>
+                <li v-for="date in card.editDates" :key="date">{{ date }}</li>
+            </ul>
             <div>
-                <button v-if="canEdit" @click="editCard">Редактировать</button><br>
-                <button v-if="canDelete" @click="deleteCard">Удалить</button>
+                <button v-if="canEdit" @click="$emit('edit', card)">Редактировать</button>
+                <button v-if="canDelete" @click="$emit('delete', card.id)">Удалить</button>
             </div>
-            <div v-if="canMoveToInProgress">
-                <button @click="moveToInProgress" :disabled="isMoveDisabled">В работу</button><br>
+            <div>
+                <button v-if="canMoveToInProgress" @click="$emit('move', card, 2)" :disabled="isMoveDisabled">В работу</button>
+                <button v-if="canMoveToTesting" @click="$emit('move', card, 3)" :disabled="isMoveDisabled">На тестирование</button>
+                <button v-if="canMoveToCompleted" @click="$emit('move', card, 4)" :disabled="isMoveDisabled">Выполнено</button>
+                <button v-if="canMoveBack" @click="moveBack">Вернуть в работу</button>
             </div>
-            <div v-if="canMoveToTesting">
-                <button @click="moveToTesting" :disabled="isMoveDisabled">На тестирование</button><br>
-            </div>
-            <div v-if="canMoveToCompleted">
-                <button @click="moveToCompleted" :disabled="isMoveDisabled">Выполнено</button><br>
-                <button v-if="canMoveBack" @click="moveBackToInProgress">Вернуть в работу</button>
-            </div><br>
         </div>
     `,
     computed: {
@@ -51,103 +44,49 @@ Vue.component('note-card', {
             return this.card.column === 2;
         },
         canMoveToCompleted() {
-            return this.card.column === 3 && this.canMoveBasedOnPriority();
+            return this.card.column === 3;
         },
         canMoveBack() {
-            if (this.card.priority === '1') {
-                return true;
-            }
-            if (this.card.column === 4) {
-                return false;
-            } else if (this.card.column === 3) {
-                const higherPriorityCardsInProgress = this.$parent.cards.filter(c => 
-                    (c.priority === '1') && c.column < 4
-                );
-                return higherPriorityCardsInProgress.length === 0;
-            }
-            return false
+            return this.card.column === 3;
         },
         isMoveDisabled() {
-            const higherPriorityCardsInProgress = this.$parent.cards.filter(c => 
-                (c.priority === '1' || c.priority === '2') && c.column < 4
-            );
-            if (this.card.column === 1 && (this.card.priority === '2' || this.card.priority === '3')) {
-                return higherPriorityCardsInProgress.length > 0;
-            }
-            if ((this.card.column === 2 || this.card.column === 3) && (this.card.priority === '2' || this.card.priority === '3')) {
-                return higherPriorityCardsInProgress.length > 0;
-            }
-            return false;
-        }             
+            const higherPriorityExists = this.allCards && this.allCards.some(c => c.priority < this.card.priority && c.column < 4);
+            return higherPriorityExists;
+        }
     },
     methods: {
         formatDeadline(deadline) {
-            const date = new Date(deadline);
-            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+            return new Date(deadline).toLocaleString();
         },
         getPriorityText(priority) {
-            switch (priority) {
-                case '1': return 'Высокий';
-                case '2': return 'Средний';
-                case '3': return 'Низкий';
-                default: return '';
-            }
+            return priority === '1' ? 'Высокий' : priority === '2' ? 'Средний' : 'Низкий';
         },
-        editCard() {
-            this.$emit('edit', this.card);
-        },
-        deleteCard() {
-            this.$emit('delete', this.card.id);
-        },
-        moveToInProgress() {
-            this.$emit('move', this.card, 2);
-        },
-        moveToTesting() {
-            this.$emit('move', this.card, 3);
-        },
-        moveToCompleted() {
-            this.$emit('move', this.card, 4);
-        },
-        moveBackToInProgress() {
+        moveBack() {
             const reason = prompt('Укажите причину возврата в работу:');
             if (reason) {
                 this.$emit('move-back', this.card, 2, reason);
             }
-        },
-        canMoveBasedOnPriority() {
-            if (this.card.priority === '3') {
-                return this.$parent.cards.every(c => (c.priority !== '1' && c.priority !== '2') || c.column === 4);
-            } else if (this.card.priority === '2') {
-                return this.$parent.cards.every(c => (c.priority !== '1') || c.column === 4);
-            }
-            return true;
         }
     }
-}); 
+});
 
 Vue.component('create-card', {
     template: `
         <div>
             <h3>Добавить карточку</h3>
-            <input v-model="title" placeholder="Название задачи" />
-            <input v-model="description" placeholder="Описание задачи" />
-            <input type="datetime-local" v-model="deadline" />
+            <input v-model="title" placeholder="Название задачи">
+            <input v-model="description" placeholder="Описание задачи">
+            <input type="datetime-local" v-model="deadline">
             <select v-model="priority">
-                <option disabled value="">Выберите приоритет</option>
-                <option value="1">1 - Высокий</option>
-                <option value="2">2 - Средний</option>
-                <option value="3">3 - Низкий</option>
+                <option value="1">Высокий</option>
+                <option value="2">Средний</option>
+                <option value="3">Низкий</option>
             </select>
-            <button @click="createCard">Добавить карточку</button>
+            <button @click="createCard">Добавить</button>
         </div>
     `,
     data() {
-        return {
-            title: '',
-            description: '',
-            deadline: '',
-            priority: ''
-        };
+        return { title: '', description: '', deadline: '', priority: '' };
     },
     methods: {
         createCard() {
@@ -158,131 +97,108 @@ Vue.component('create-card', {
                     deadline: this.deadline,
                     priority: this.priority
                 });
-                this.resetForm();
+                this.title = '';
+                this.description = '';
+                this.deadline = '';
+                this.priority = '';
             }
-        },
-        resetForm() {
-            this.title = '';
-            this.description = '';
-            this.deadline = '';
-            this.priority = '';
         }
     }
 });
 
 Vue.component('edit-card', {
-    props: {
-        card: {
-            type: Object,
-            required: true
-        }
-    },
+    props: ['card'],
     template: `
         <div>
             <h3>Редактировать карточку</h3>
-            <input v-model="card.title" placeholder="Название задачи" />
-            <input v-model="card.description" placeholder="Описание задачи" />
-            <button @click="saveChanges">Сохранить изменения</button>
-            <button @click="$emit('cancel')">Отмена</button>
+            <input v-model="card.title" placeholder="Название задачи">
+            <input v-model="card.description" placeholder="Описание задачи">
+            <button @click="$emit('save', card)">Сохранить</button>
+            <button @click="cancelEdit">Отмена</button>
         </div>
     `,
     methods: {
-        saveChanges() {
-            this.card.editDates.push(new Date().toLocaleString());
-            this.$emit('save', this.card);
+        cancelEdit() {
+            this.$emit('cancel');
         }
     }
 });
 
 let app = new Vue({
     el: '#app',
-    data: {
-        cards: [],
-        nextCardId: 1,
-        editingCard: null
+    data() {
+        return {
+            columns: [
+                { id: 1, title: 'Новое' },
+                { id: 2, title: 'В работе' },
+                { id: 3, title: 'На тестировании' },
+                { id: 4, title: 'Выполнено' }
+            ],
+            cards: [],
+            nextCardId: 1,
+            editingCard: null
+        };
     },
     methods: {
         addCard(cardData) {
-            const newCard = {
+            this.cards.push({
                 id: this.nextCardId++,
-                title: cardData.title,
-                description: cardData.description,
+                ...cardData,
+                column: 1,  // Устанавливаем карточку в столбец "Новое" (column = 1)
                 createdDate: new Date().toLocaleString(),
-                deadline: cardData.deadline,
-                priority: cardData.priority || '0',
-                column: 1,
                 editDates: [],
                 reason: ''
-            };
-            this.cards.push(newCard);
-            this.saveData();
-        },
-        clearCards() {
-            this.cards = [];
-            this.nextCardId = 1;
+            });
             this.saveData();
         },
         editCard(card) {
-            this.editingCard = JSON.parse(JSON.stringify(card));
+            this.editingCard = { ...card };
         },
         saveEditedCard(card) {
             const index = this.cards.findIndex(c => c.id === card.id);
             if (index !== -1) {
-                card.editDates.push(new Date().toLocaleString());
-                this.cards.splice(index, 1, card);
+                this.cards[index] = card;
+                this.cards[index].editDates.push(new Date().toLocaleString());
             }
             this.editingCard = null;
             this.saveData();
-        },
-        cancelEdit() {
-            this.editingCard = null;
         },
         deleteCard(cardId) {
             this.cards = this.cards.filter(c => c.id !== cardId);
             this.saveData();
         },
         moveCard(card, column) {
-            if (column === 2 && card.column === 3) {
-                const reason = prompt('Укажите причину перемещения в работу:');
-                if (reason) {
-                    card.column = column;
-                    card.reason = reason;
-                    card.status = `Возвращено в работу. Причина: ${reason}`;
-                }
-            } else {
-                card.column = column;
-                if (column === 4) {
-                    const now = new Date();
-                    const deadline = new Date(card.deadline);
-                    card.status = deadline < now ? 'Просрочено' : 'Выполнено в срок';
-                }
+            if (column === 4) {
+                card.status = new Date(card.deadline) < new Date() ? 'Просрочено' : 'Выполнено в срок';
             }
+            card.column = column;
             this.saveData();
-        },                
+        },
         moveBackToInProgress(card, column, reason) {
-            if (column === 2) {
-                card.column = column;
-                card.reason = reason;
-                card.status = `Возвращено в работу. Причина: ${reason}`;
-                this.saveData();
-            }
+            card.column = column;
+            card.reason = reason;
+            card.status = `Возвращено в работу: ${reason}`;
+            this.saveData();
         },
         saveData() {
-            localStorage.setItem('cards', JSON.stringify(this.cards));
-            localStorage.setItem('nextCardId', this.nextCardId);
+            localStorage.setItem('kanban-cards', JSON.stringify(this.cards));
         },
-        loadData() {
-            const savedCards = localStorage.getItem('cards');
-            const savedNextCardId = localStorage.getItem('nextCardId');
-            if (savedCards) {
-                this.cards = JSON.parse(savedCards);
-            }
-            if (savedNextCardId) {
-                this.nextCardId = parseInt(savedNextCardId, 10);
-            }
+        clearCards() {
+            this.cards = [];  // Очищаем массив карточек
+            localStorage.removeItem('kanban-cards'); // Удаляем данные из LocalStorage
+        },
+        getCardsByColumn(columnId) {
+            return this.cards.filter(card => card.column === columnId);  // Фильтруем карточки по столбцу
+        },
+        cancelEdit() {
+            this.editingCard = null;  // Отменяем редактирование
         }
     },
-    mounted() {
-        this.loadData();
+    created() {
+        const savedCards = JSON.parse(localStorage.getItem('kanban-cards'));
+        if (savedCards) {
+            this.cards = savedCards;
+            this.nextCardId = this.cards.length ? Math.max(...this.cards.map(c => c.id)) + 1 : 1;
+        }
     }
 });
