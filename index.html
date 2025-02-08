@@ -3,7 +3,7 @@
 <head>
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <script defer src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+   <script defer src="js/vue.js"></script>
    <script defer src="js/main.js"></script>
    <link rel="stylesheet" href="css/main.css">
    <title>Kanban</title>
@@ -14,13 +14,24 @@
         <create-card @card-created="addCard"></create-card><br>
         <h3>Удалить все карточки</h3>
         <button @click="clearCards">Очистить все карточки</button><br><br>
+        
         <edit-card v-if="editingCard" :card="editingCard" @save="saveEditedCard" @cancel="cancelEdit"></edit-card><br>
+        
         <div class="columns">
             <div class="column" v-for="column in [1, 2, 3, 4]" :key="column">
-                <h2>{{ column === 1 ? 'Новые' : column === 2 ? 'В работе' : column === 3 ? 'На тестировании' : 'Выполнено' }}</h2>
-                <note-card v-for="card in cards.filter(c => c.column === column)" :key="card.id" :card="card" :column="column" @edit-card="editCard" @delete-card="deleteCard" @move-card="moveCard" @move-card-back="moveCardBack"></note-card>
+                <h2>{{ column === 1 ? 'Новые' : column === 2 ? 'В работе' : column === 3 ? 'На проверке' : 'Выполнено' }}</h2>
+                <note-card 
+                    v-for="card in cards.filter(c => c.column === column)" 
+                    :key="card.id" 
+                    :card="card" 
+                    :highPriorityCardsCompleted="cards.every(c => c.priority !== '1' && c.priority !== '2' || c.column === 4)"
+                    @edit="editCard" 
+                    @delete="deleteCard" 
+                    @move="moveCard"
+                    @move-back="moveBackToInProgress">
+                </note-card>
             </div>
         </div>
-    </div>    
+    </div>       
 </body>
 </html>
