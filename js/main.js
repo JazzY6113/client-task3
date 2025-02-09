@@ -3,7 +3,7 @@ let eventBus = new Vue();
 Vue.component('note-card', {
     props: {
         card: Object,
-        allCards: Array  // Пропс allCards
+        allCards: Array
     },
     template: `
         <div class="card">
@@ -50,7 +50,6 @@ Vue.component('note-card', {
             return this.card.column === 3;
         },
         isMoveDisabled() {
-            // Проверка для блокировки перемещения карточки, если есть более высокие приоритеты, не перемещенные в "Выполнено"
             const higherPriorityExists = this.allCards && this.allCards.some(c => 
                 c.priority < this.card.priority && c.column < 4
             );
@@ -148,7 +147,7 @@ let app = new Vue({
             this.cards.push({
                 id: this.nextCardId++,
                 ...cardData,
-                column: 1,  // Устанавливаем карточку в столбец "Новое" (column = 1)
+                column: 1,
                 createdDate: new Date().toLocaleString(),
                 editDates: [],
                 reason: ''
@@ -188,14 +187,14 @@ let app = new Vue({
             localStorage.setItem('kanban-cards', JSON.stringify(this.cards));
         },
         clearCards() {
-            this.cards = [];  // Очищаем массив карточек
-            localStorage.removeItem('kanban-cards'); // Удаляем данные из LocalStorage
+            this.cards = [];
+            localStorage.removeItem('kanban-cards');
         },
         getCardsByColumn(columnId) {
-            return this.cards.filter(card => card.column === columnId);  // Фильтруем карточки по столбцу
+            return this.cards.filter(card => card.column === columnId);
         },
         cancelEdit() {
-            this.editingCard = null;  // Отменяем редактирование
+            this.editingCard = null;
         }
     },
     created() {
